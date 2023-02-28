@@ -16,7 +16,7 @@ export class AuthController {
 	}
 
 	@Post("/signin")
-	signIn(@Body() authVerifyDto: AuthVerifyDto): Promise<string> {
+	signIn(@Body() authVerifyDto: AuthVerifyDto): Promise<{ accessToken: string }> {
 		return this.authService.signIn(authVerifyDto);
 	}
 

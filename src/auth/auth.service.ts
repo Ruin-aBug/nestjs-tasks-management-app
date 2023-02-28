@@ -3,12 +3,15 @@ import { UserRepository } from './user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthVerifyDto } from './dto/auth-verify.dto';
 import { compare } from 'bcrypt';
+import { JwtPayload } from './jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		@InjectRepository(UserRepository)
-		private readonly userRepository: UserRepository
+		private readonly userRepository: UserRepository,
+		private readonly jwtService: JwtService
 	) { }
 
 	async signUp(authVerifyDto: AuthVerifyDto): Promise<void> {
@@ -23,12 +26,14 @@ export class AuthService {
 		}
 	}
 
-	async signIn(authVerifyDto: AuthVerifyDto): Promise<string> {
+	async signIn(authVerifyDto: AuthVerifyDto): Promise<{ accessToken: string }> {
 		const { username, password } = authVerifyDto;
 		const user = await this.userRepository.findOne({ where: { username } });
 
 		if (user && await compare(password, user.password)) {
-			return "success";
+			const payload: JwtPayload = { username };
+			const accessToken: string = this.jwtService.sign(payload);
+			return { accessToken };
 		} else {
 			throw new UnauthorizedException("Please check your login info.");
 		}
