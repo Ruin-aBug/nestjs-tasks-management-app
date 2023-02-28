@@ -11,7 +11,11 @@ import { Users } from '../auth/user.entity';
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
-	constructor(private tasksService: TasksService) { }
+
+	private logger = new Logger("TasksController");
+	constructor(
+		private readonly tasksService: TasksService,
+	) { }
 
 	@Get("/:id")
 	getTaskById(
